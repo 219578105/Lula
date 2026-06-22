@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lula — Set Up Your Account</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<div class="setup-page">
+  <div class="setup-box">
+    <div class="step-indicator">
+      <div class="step-dot active" id="dot0"></div>
+      <div class="step-dot" id="dot1"></div>
+      <div class="step-dot" id="dot2"></div>
+      <div class="step-dot" id="dot3"></div>
+    </div>
+
+    <!-- STEP 0: ROLE SELECTION -->
+    <div id="step0">
+      <div class="brand-mark" style="font-size:22px;margin-bottom:20px;">Lu<span>la</span></div>
+      <h2 style="font-size:22px;margin-bottom:6px;">Welcome to Lula! 👋</h2>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:24px;">First, tell us who you are so we can set up the right experience for you.</p>
+      <div style="display:flex;gap:14px;margin-bottom:24px;flex-wrap:wrap;">
+        <div class="role-card" id="roleProvider" onclick="selectRole('provider')">
+          <div class="role-icon">🏪</div>
+          <div class="role-title">Business Owner</div>
+          <div class="role-desc">I own a spaza shop, salon, tavern, butchery or any local business and want to manage it digitally.</div>
+        </div>
+        <div class="role-card" id="roleCustomer" onclick="selectRole('customer')">
+          <div class="role-icon">👤</div>
+          <div class="role-title">Customer</div>
+          <div class="role-desc">I want to find local businesses, view products, manage my credit balance and make payments.</div>
+        </div>
+      </div>
+      <div id="roleError" class="hidden alert alert-danger">⚠ Please choose your role first.</div>
+      <button class="btn btn-primary btn-full btn-lg" onclick="goStep(1)">Continue →</button>
+      <p style="text-align:center;margin-top:14px;font-size:13px;color:var(--muted);">Already have an account? <a href="index.html" style="color:var(--green);font-weight:600;">Sign in →</a></p>
+    </div>
+
+    <!-- STEP 1: PERSONAL INFO -->
+    <div id="step1" class="hidden">
+      <h2 class="step-heading" id="step1Title">Tell us about yourself</h2>
+      <p class="step-description">This only takes a minute.</p>
+      <div class="input-group">
+       <label for="ownerName">Your full name</label>
+<input type="text" id="ownerName" placeholder="e.g. Thandi Dlamini"/>
+      </div>
+      <div class="input-group">
+        
+<label for="ownerPhone">Phone number</label>
+<input type="tel" id="ownerPhone" placeholder="e.g. 082 123 4567"/>
+      </div>
+      <div id="bizFields">
+        <div class="input-group">
+         <label for="bizName">Business name</label>
+<input type="text" id="bizName" placeholder='e.g. "Mama Thandi&apos;s Spaza"'/>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-outline" onclick="goStep(0)">← Back</button>
+        <button class="btn btn-primary" style="flex:1;" onclick="goStep(2)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: STORE TYPE / INTERESTS -->
+    <div id="step2" class="hidden">
+      <h2 style="font-size:20px;margin-bottom:4px;" id="step2Title">What type of business do you run?</h2>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:8px;">This personalises your dashboard — the right tools for your type of shop.</p>
+      <div class="store-grid" id="storeGrid">
+        <div class="store-tile" data-type="Spaza Shop"               onclick="selectStore(this)"><div class="store-tile-icon">🏪</div><div class="store-tile-name">Spaza Shop</div></div>
+        <div class="store-tile" data-type="Tavern / Shebeen"         onclick="selectStore(this)"><div class="store-tile-icon">🍺</div><div class="store-tile-name">Tavern / Shebeen</div></div>
+        <div class="store-tile" data-type="Hair Salon"               onclick="selectStore(this)"><div class="store-tile-icon">💇</div><div class="store-tile-name">Hair Salon</div></div>
+        <div class="store-tile" data-type="Barbershop"               onclick="selectStore(this)"><div class="store-tile-icon">✂️</div><div class="store-tile-name">Barbershop</div></div>
+        <div class="store-tile" data-type="Tuck Shop"                onclick="selectStore(this)"><div class="store-tile-icon">🛍️</div><div class="store-tile-name">Tuck Shop</div></div>
+        <div class="store-tile" data-type="Butchery"                 onclick="selectStore(this)"><div class="store-tile-icon">🥩</div><div class="store-tile-name">Butchery</div></div>
+        <div class="store-tile" data-type="Fruit & Veg"              onclick="selectStore(this)"><div class="store-tile-icon">🥦</div><div class="store-tile-name">Fruit &amp; Veg</div></div>
+        <div class="store-tile" data-type="Bakery"                   onclick="selectStore(this)"><div class="store-tile-icon">🍞</div><div class="store-tile-name">Bakery</div></div>
+        <div class="store-tile" data-type="Takeaway / Braai Spot"    onclick="selectStore(this)"><div class="store-tile-icon">🍖</div><div class="store-tile-name">Takeaway / Braai</div></div>
+        <div class="store-tile" data-type="Clothing & Alterations"   onclick="selectStore(this)"><div class="store-tile-icon">👗</div><div class="store-tile-name">Clothing &amp; Alterations</div></div>
+        <div class="store-tile" data-type="Nail Salon"               onclick="selectStore(this)"><div class="store-tile-icon">💅</div><div class="store-tile-name">Nail Salon</div></div>
+        <div class="store-tile" data-type="Cell Phone Repairs"       onclick="selectStore(this)"><div class="store-tile-icon">📱</div><div class="store-tile-name">Phone Repairs</div></div>
+        <div class="store-tile" data-type="Internet Café / Printing" onclick="selectStore(this)"><div class="store-tile-icon">🖨️</div><div class="store-tile-name">Internet Café</div></div>
+        <div class="store-tile" data-type="Hardware Shop"            onclick="selectStore(this)"><div class="store-tile-icon">🔨</div><div class="store-tile-name">Hardware Shop</div></div>
+        <div class="store-tile" data-type="Pharmacy / Chemist"       onclick="selectStore(this)"><div class="store-tile-icon">💊</div><div class="store-tile-name">Pharmacy</div></div>
+        <div class="store-tile" data-type="Muthi Shop"               onclick="selectStore(this)"><div class="store-tile-icon">🌿</div><div class="store-tile-name">Muthi Shop</div></div>
+        <div class="store-tile" data-type="Laundry & Dry Cleaning"   onclick="selectStore(this)"><div class="store-tile-icon">👕</div><div class="store-tile-name">Laundry</div></div>
+        <div class="store-tile" data-type="Mechanic / Tyre Shop"     onclick="selectStore(this)"><div class="store-tile-icon">🔧</div><div class="store-tile-name">Mechanic / Tyre</div></div>
+        <div class="store-tile" data-type="Creche / Daycare"         onclick="selectStore(this)"><div class="store-tile-icon">🧒</div><div class="store-tile-name">Creche / Daycare</div></div>
+        <div class="store-tile" data-type="Funeral Parlour"          onclick="selectStore(this)"><div class="store-tile-icon">🕊️</div><div class="store-tile-name">Funeral Parlour</div></div>
+        <div class="store-tile" data-type="Recycling / Second-Hand"  onclick="selectStore(this)"><div class="store-tile-icon">♻️</div><div class="store-tile-name">Recycling / 2nd Hand</div></div>
+        <div class="store-tile" data-type="Car Wash"                 onclick="selectStore(this)"><div class="store-tile-icon">🚿</div><div class="store-tile-name">Car Wash</div></div>
+        <div class="store-tile" data-type="Garden & Landscaping"     onclick="selectStore(this)"><div class="store-tile-icon">🌱</div><div class="store-tile-name">Garden Service</div></div>
+        <div class="store-tile" data-type="Other" id="otherTile"     onclick="selectStore(this)"><div class="store-tile-icon">➕</div><div class="store-tile-name">Other</div></div>
+      </div>
+      <div id="otherInput" class="hidden input-group" style="margin-bottom:12px;">
+       <label for="customType">Describe your business</label>
+<input type="text" id="customType" placeholder='e.g. "Pet Shop", "Music Studio"'/>
+      </div>
+      <div id="storeError" class="hidden alert alert-danger" style="margin-bottom:12px;">⚠ Please select your business type.</div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-outline" onclick="goStep(1)">← Back</button>
+        <button class="btn btn-primary" style="flex:1;" onclick="goStep(3)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: DONE -->
+    <div id="step3" class="hidden" style="text-align:center;padding:10px 0;">
+      <div style="font-size:60px;margin-bottom:16px;" id="doneEmoji">🎉</div>
+      <h2 style="font-size:23px;margin-bottom:8px;" id="doneTitle">You're all set!</h2>
+      <p style="color:var(--dark-mid);font-size:15px;font-weight:500;margin-bottom:6px;" id="doneSummary"></p>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:30px;" id="doneDesc"></p>
+      <button class="btn btn-primary btn-full btn-lg" onclick="finishSetup()">Open my dashboard →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let selectedRole='', selectedStoreType='', currentStep=0;
+
+  function selectRole(role) {
+    selectedRole=role;
+    document.getElementById('roleProvider').classList.toggle('selected',role==='provider');
+    document.getElementById('roleCustomer').classList.toggle('selected',role==='customer');
+    document.getElementById('roleError').classList.add('hidden');
+  }
+
+  function selectStore(tile) {
+    document.querySelectorAll('.store-tile').forEach(t=>t.classList.remove('selected'));
+    tile.classList.add('selected');
+    selectedStoreType=tile.dataset.type;
+    document.getElementById('storeError').classList.add('hidden');
+    const isOther=selectedStoreType==='Other';
+    document.getElementById('otherInput').classList.toggle('hidden',!isOther);
+    if(isOther) document.getElementById('customType').focus();
+  }
+
+  function goStep(n) {
+    if(n===1&&currentStep===0) {
+      if(!selectedRole){ document.getElementById('roleError').classList.remove('hidden'); return; }
+      if(selectedRole==='customer') {
+        document.getElementById('bizFields').classList.add('hidden');
+        document.getElementById('step2Title').textContent='What are you looking for?';
+        document.getElementById('storeGrid').innerHTML=`
+          <div class="store-tile" data-type="Food & Groceries" onclick="selectStore(this)"><div class="store-tile-icon">🛒</div><div class="store-tile-name">Food & Groceries</div></div>
+          <div class="store-tile" data-type="Hair & Beauty" onclick="selectStore(this)"><div class="store-tile-icon">💇</div><div class="store-tile-name">Hair & Beauty</div></div>
+          <div class="store-tile" data-type="Meat & Butchery" onclick="selectStore(this)"><div class="store-tile-icon">🥩</div><div class="store-tile-name">Meat & Butchery</div></div>
+          <div class="store-tile" data-type="Tavern & Drinks" onclick="selectStore(this)"><div class="store-tile-icon">🍺</div><div class="store-tile-name">Tavern & Drinks</div></div>
+          <div class="store-tile" data-type="Takeaways" onclick="selectStore(this)"><div class="store-tile-icon">🍖</div><div class="store-tile-name">Takeaways</div></div>
+          <div class="store-tile" data-type="Phone & Tech" onclick="selectStore(this)"><div class="store-tile-icon">📱</div><div class="store-tile-name">Phone & Tech</div></div>
+          <div class="store-tile" data-type="Everything" onclick="selectStore(this)"><div class="store-tile-icon">🌍</div><div class="store-tile-name">Everything</div></div>`;
+      } else {
+        document.getElementById('bizFields').classList.remove('hidden');
+      }
+    }
+    if(n===2&&currentStep===1) {
+      if(!document.getElementById('ownerName').value.trim()) {
+        document.getElementById('ownerName').style.borderColor='var(--danger)'; document.getElementById('ownerName').focus(); return;
+      }
+      document.getElementById('ownerName').style.borderColor='';
+    }
+    if(n===3&&currentStep===2) {
+      if(!selectedStoreType){ document.getElementById('storeError').classList.remove('hidden'); return; }
+      if(selectedStoreType==='Other') {
+        const c=document.getElementById('customType').value.trim();
+        if(!c){ document.getElementById('customType').style.borderColor='var(--danger)'; document.getElementById('customType').focus(); return; }
+        selectedStoreType=c;
+      }
+      const name=document.getElementById('ownerName').value.trim();
+      const biz=document.getElementById('bizName').value.trim();
+      if(selectedRole==='provider') {
+        document.getElementById('doneEmoji').textContent='🏪';
+        document.getElementById('doneTitle').textContent='Your business is ready!';
+        document.getElementById('doneSummary').textContent=`"${biz||name}" · ${selectedStoreType}`;
+        document.getElementById('doneDesc').textContent='Your personalised dashboard is waiting. Lula works even without internet.';
+      } else {
+        document.getElementById('doneEmoji').textContent='🎉';
+        document.getElementById('doneTitle').textContent='Welcome to Lula!';
+        document.getElementById('doneSummary').textContent=`${name} · Customer account`;
+        document.getElementById('doneDesc').textContent='Find local shops, track your credit balance and manage your purchases — all in one place.';
+      }
+    }
+    document.getElementById('step'+currentStep).classList.add('hidden');
+    document.getElementById('step'+n).classList.remove('hidden');
+    document.querySelectorAll('.step-dot').forEach((d,i)=>{ d.classList.remove('active','done'); if(i===n) d.classList.add('active'); if(i<n) d.classList.add('done'); });
+    currentStep=n;
+  }
+
+  function finishSetup() {
+    const data={ role:selectedRole, bizName:document.getElementById('bizName').value.trim(), ownerName:document.getElementById('ownerName').value.trim(), phone:document.getElementById('ownerPhone').value.trim(), storeType:selectedStoreType, setupAt:new Date().toISOString() };
+    localStorage.setItem('lula_business',JSON.stringify(data));
+    localStorage.setItem('lula_setup_done','1');
+    localStorage.setItem('lula_role',selectedRole);
+    window.location.href=selectedRole==='customer'?'customer.html':'dashboard.html';
+  }
+</script>
+</body>
+</html>

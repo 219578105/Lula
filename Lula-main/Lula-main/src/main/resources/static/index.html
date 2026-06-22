@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lula — South Africa's Business Platform</title>
+  <link rel="stylesheet" href="style.css"/>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+<div class="login-page">
+  <div class="login-box">
+
+    <div class="login-logo">
+      <div class="brand-mark">Lu<span>la</span></div>
+      <div class="login-tagline">South Africa's smart business platform</div>
+    </div>
+
+    <!-- Google sign-in initialiser -->
+    <div id="g_id_onload"
+      data-client_id="790839446499-2q8ir0ttrcs7jf3v00uls48bc3m3q3s2.apps.googleusercontent.com"
+      data-callback="handleGoogleSignIn"
+      data-auto_prompt="false">
+    </div>
+
+    <!-- Official Google button rendered by SDK -->
+    <div class="g_id_signin"
+      data-type="standard" data-shape="rectangular"
+      data-theme="outline" data-text="continue_with"
+      data-size="large" data-logo_alignment="left" data-width="348">
+    </div>
+
+    <div class="divider">or sign in with email</div>
+
+    <div class="input-group">
+      <label>Phone number or email</label>
+      <input type="text" id="emailInput" />
+    </div>
+    <div class="input-group">
+      <label>Password</label>
+      <input type="password" id="passInput" />
+    </div>
+    <button class="btn btn-primary btn-full btn-lg" onclick="emailSignIn()">Sign in →</button>
+
+    <p style="text-align:center;margin-top:16px;font-size:13px;color:var(--muted);">
+      New to Lula?
+      <a href="setup.html" style="color:var(--green);font-weight:600;">Create your account free →</a>
+    </p>
+
+    <div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:9px;">
+      <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);">
+        <span style="font-size:16px;">📶</span> Works offline — syncs automatically when back online
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);">
+        <span style="font-size:16px;">💰</span> 80% less data — built for South African townships
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);">
+        <span style="font-size:16px;">🏪</span> Spaza shops, taverns, salons, butcheries & more
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  const CLIENT_ID = '790839446499-2q8ir0ttrcs7jf3v00uls48bc3m3q3s2.apps.googleusercontent.com';
+
+  function handleGoogleSignIn(response) {
+    try {
+      const payload = JSON.parse(atob(response.credential.split('.')[1]));
+      localStorage.setItem('lula_user', JSON.stringify({
+        name: payload.name, email: payload.email,
+        picture: payload.picture, loginMethod: 'google'
+      }));
+      redirect();
+    } catch(e) { showToast('⚠ Sign-in failed. Try again.'); }
+  }
+
+  function emailSignIn() {
+    const email = document.getElementById('emailInput').value.trim();
+    if (!email) { showToast('⚠ Please enter your email or phone.'); return; }
+    localStorage.setItem('lula_user', JSON.stringify({
+      name: email.split('@')[0] || email, email, loginMethod: 'email'
+    }));
+    redirect();
+  }
+
+  function redirect() {
+    const setup = localStorage.getItem('lula_setup_done');
+    window.location.href = setup ? 'dashboard.html' : 'setup.html';
+  }
+
+  // Don't auto-redirect if just signed out
+  const justOut = sessionStorage.getItem('signed_out');
+  if (!justOut && localStorage.getItem('lula_user') && localStorage.getItem('lula_setup_done')) {
+    window.location.href = 'dashboard.html';
+  }
+  sessionStorage.removeItem('signed_out');
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.transform = 'translateX(-50%) translateY(0)';
+    setTimeout(() => { t.style.transform = 'translateX(-50%) translateY(100px)'; }, 3000);
+  }
+</script>
+</body>
+</html>

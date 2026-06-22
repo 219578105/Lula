@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lula — Customer Portal</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    /* ── Customer-specific styles ── */
+    .cust-layout { max-width: 680px; margin: 0 auto; padding: 24px 16px 60px; }
+
+    .cust-hero {
+      background: var(--green); color: var(--white);
+      border-radius: var(--radius-lg); padding: 28px 24px; margin-bottom: 20px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .cust-hero-name { font-family: 'Sora', sans-serif; font-size: 20px; font-weight: 700; }
+    .cust-hero-sub  { font-size: 13px; opacity: 0.75; margin-top: 2px; }
+    .cust-avatar {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: rgba(255,255,255,0.2); display: flex; align-items: center;
+      justify-content: center; font-family: 'Sora', sans-serif;
+      font-size: 20px; font-weight: 700; flex-shrink: 0;
+    }
+    .balance-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px 24px; margin-bottom: 20px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .balance-label { font-size: 13px; color: var(--muted); font-weight: 500; }
+    .balance-amount { font-family: 'Sora', sans-serif; font-size: 32px; font-weight: 700; color: var(--dark); }
+    .balance-limit  { font-size: 13px; color: var(--muted); margin-top: 2px; }
+    .balance-amount.danger { color: var(--danger); }
+
+    .tab-bar {
+      display: flex; gap: 4px; background: var(--white);
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 4px; margin-bottom: 20px;
+    }
+    .tab-btn {
+      flex: 1; padding: 9px 8px; border: none; background: none;
+      border-radius: 6px; font-size: 13px; font-weight: 500;
+      color: var(--muted); cursor: pointer; transition: all 0.15s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .tab-btn.active { background: var(--green); color: var(--white); }
+
+    .shop-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px;
+      display: flex; align-items: center; gap: 14px; cursor: pointer;
+      transition: all 0.15s;
+    }
+    .shop-card:hover { border-color: var(--green); box-shadow: var(--shadow); transform: translateY(-1px); }
+    .shop-icon {
+      width: 46px; height: 46px; border-radius: var(--radius-sm);
+      background: var(--green-light); display: flex; align-items: center;
+      justify-content: center; font-size: 22px; flex-shrink: 0;
+    }
+    .shop-name  { font-weight: 600; font-size: 15px; color: var(--dark); }
+    .shop-type  { font-size: 13px; color: var(--muted); margin-top: 2px; }
+    .shop-badge { margin-left: auto; }
+
+    .product-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 14px 16px; margin-bottom: 8px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .product-name  { font-weight: 500; font-size: 14px; }
+    .product-price { font-family: 'Sora', sans-serif; font-weight: 700; color: var(--green); font-size: 16px; }
+    .product-stock { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    .history-item {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 14px 16px; margin-bottom: 8px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .history-item-left  { display: flex; flex-direction: column; gap: 2px; }
+    .history-desc { font-weight: 500; font-size: 14px; }
+    .history-date { font-size: 12px; color: var(--muted); }
+    .history-amount { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 16px; }
+
+    .empty-state {
+      text-align: center; padding: 40px 20px;
+      color: var(--muted); font-size: 14px;
+    }
+    .empty-state .empty-icon { font-size: 40px; margin-bottom: 12px; }
+
+    /* Login page override for customer */
+    .cust-login-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--green-light); color: var(--green);
+      padding: 4px 12px; border-radius: 99px; font-size: 12px; font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--white); border-top: 1px solid var(--border);
+      display: flex; padding: 8px 0 12px;
+    }
+    .bnav-item {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+      font-size: 11px; font-weight: 500; color: var(--muted); cursor: pointer;
+      border: none; background: none; padding: 4px 0; transition: color 0.15s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .bnav-item.active { color: var(--green); }
+    .bnav-item svg { width: 22px; height: 22px; }
+
+    .request-form {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px;
+    }
+    .pay-btn {
+      background: var(--green); color: var(--white); border: none;
+      border-radius: var(--radius-sm); padding: 14px 20px;
+      font-size: 15px; font-weight: 600; cursor: pointer; width: 100%;
+      font-family: 'DM Sans', sans-serif; transition: background 0.15s;
+    }
+    .pay-btn:hover { background: var(--green-mid); }
+    .pay-btn.amber { background: var(--amber); }
+  </style>
+</head>
+<body>
+
+<!-- ══ LOGIN SCREEN ══ -->
+<div id="loginScreen" class="login-page">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="brand-mark">Lu<span>la</span></div>
+      <div class="login-tagline">Smart business tools for South African shops</div>
+    </div>
+    <div style="text-align:center; margin-bottom:20px;">
+      <div class="cust-login-badge">👤 Customer Portal</div>
+      <p style="font-size:14px; color:var(--muted);">Sign in to view your balance, history & shop products</p>
+    </div>
+
+    <div id="g_id_onload"
+      data-client_id="790839446499-2q8ir0ttrcs7jf3v00uls48bc3m3q3s2.apps.googleusercontent.com"
+      data-callback="handleCustomerSignIn"
+      data-auto_prompt="false">
+    </div>
+    <div class="g_id_signin"
+      data-type="standard" data-shape="rectangular"
+      data-theme="outline" data-text="continue_with"
+      data-size="large" data-logo_alignment="left" data-width="340">
+    </div>
+
+    <div style="margin-top:20px; text-align:center;">
+      <a href="index.html" style="font-size:13px; color:var(--muted);">Are you a shop owner? <span style="color:var(--green); font-weight:500;">Sign in here →</span></a>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CUSTOMER APP ══ -->
+<div id="custApp" class="hidden">
+
+  <!-- Top header -->
+  <header class="page-header">
+    <div class="brand-mark">Lu<span>la</span></div>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <div id="custHeaderAvatar" style="width:34px; height:34px; border-radius:50%; background:var(--green-light); display:flex; align-items:center; justify-content:center; font-weight:600; font-size:13px; color:var(--green); cursor:pointer; border:1.5px solid var(--border);" onclick="custSignOut()"></div>
+    </div>
+  </header>
+
+  <div class="cust-layout">
+
+    <!-- Hero greeting -->
+    <div class="cust-hero">
+      <div>
+        <div class="cust-hero-name" id="custHeroName">Hello!</div>
+        <div class="cust-hero-sub" id="custHeroSub">Welcome to Lula Customer Portal</div>
+      </div>
+      <div class="cust-avatar" id="custHeroAvatar">?</div>
+    </div>
+
+    <!-- Balance summary -->
+    <div class="balance-card" id="balanceCard" style="display:none;">
+      <div>
+        <div class="balance-label">Your credit balance</div>
+        <div class="balance-amount" id="custBalance">R0.00</div>
+        <div class="balance-limit" id="custLimit">Credit limit: R0.00</div>
+      </div>
+      <button class="pay-btn amber" style="width:auto; padding:10px 20px; font-size:13px;" onclick="showTab('pay')">Pay Now</button>
+    </div>
+
+    <!-- Tab bar -->
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="showTab('shops')" id="tab-shops">🏪 Shops</button>
+      <button class="tab-btn" onclick="showTab('products')" id="tab-products">📦 Products</button>
+      <button class="tab-btn" onclick="showTab('history')" id="tab-history">🧾 History</button>
+      <button class="tab-btn" onclick="showTab('credit')" id="tab-credit">💳 Credit</button>
+      <button class="tab-btn" onclick="showTab('pay')" id="tab-pay">💰 Pay</button>
+    </div>
+
+    <!-- ── SHOPS TAB ── -->
+    <div id="section-shops">
+      <div style="font-size:13px; color:var(--muted); margin-bottom:14px;">All businesses registered on Lula</div>
+      <div id="shopsList"></div>
+    </div>
+
+    <!-- ── PRODUCTS TAB ── -->
+    <div id="section-products" class="hidden">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+        <div style="font-size:13px; color:var(--muted);" id="productsShopLabel">Select a shop to view products</div>
+        <select id="shopFilter" onchange="filterProducts()" style="font-size:13px; padding:6px 10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--white); font-family:'DM Sans',sans-serif;">
+          <option value="all">All shops</option>
+        </select>
+      </div>
+      <div id="productsList"></div>
+    </div>
+
+    <!-- ── HISTORY TAB ── -->
+    <div id="section-history" class="hidden">
+      <div style="font-size:13px; color:var(--muted); margin-bottom:14px;">Your purchase history across all shops</div>
+      <div id="historyList"></div>
+    </div>
+
+    <!-- ── CREDIT REQUEST TAB ── -->
+    <div id="section-credit" class="hidden">
+      <div style="font-size:13px; color:var(--muted); margin-bottom:14px;">Request to buy on credit from a shop</div>
+      <div class="request-form">
+        <div class="input-group">
+          <label for="creditShopSelect">Select shop</label>
+<select id="creditShopSelect">
+            <option value="">-- Choose a shop --</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="creditItem">What do you want to buy?</label>
+<input type="text" id="creditItem" />
+        </div>
+        <div class="input-group">
+          <label for="creditAmount">Amount (R)</label>
+<input type="number" id="creditAmount" />
+        </div>
+        <div class="input-group">
+         <label for="creditNote">Note to shop owner (optional)</label>
+<input type="text" id="creditNote" />
+        </div>
+        <button class="pay-btn amber" onclick="submitCreditRequest()">Send Credit Request →</button>
+      </div>
+
+      <!-- Existing requests -->
+      <div style="margin-top:20px;">
+        <div class="section-heading" style="font-size:15px; margin-bottom:12px;">Your requests</div>
+        <div id="creditRequestsList"></div>
+      </div>
+    </div>
+
+    <!-- ── PAY BALANCE TAB ── -->
+    <div id="section-pay" class="hidden">
+      <div style="font-size:13px; color:var(--muted); margin-bottom:14px;">Pay your outstanding balance to a shop</div>
+      <div class="request-form">
+        <div class="input-group">
+        <label for="payShopSelect">Select shop</label>
+<select id="payShopSelect">
+            <option value="">-- Choose a shop --</option>
+          </select>
+        </div>
+
+        <div id="payBalanceInfo" style="background:var(--amber-light); border:1px solid #F0C060; border-radius:var(--radius-sm); padding:14px; margin-bottom:16px; display:none;">
+          <div style="font-size:13px; color:var(--muted);">Outstanding balance at this shop:</div>
+          <div style="font-family:'Sora',sans-serif; font-size:28px; font-weight:700; color:var(--amber);" id="payBalanceAmount">R0.00</div>
+        </div>
+
+        <div class="input-group">
+          <label for="payAmount">Amount to pay (R)</label>
+<input type="number" id="payAmount" />
+        </div>
+        <div class="input-group">
+          <label for="payMethod">Payment method</label>
+<select id="payMethod">
+            <option value="cash">Cash (in person)</option>
+            <option value="eft">EFT / Bank transfer</option>
+            <option value="ewallet">eWallet</option>
+            <option value="snapscan">SnapScan / Zapper</option>
+          </select>
+        </div>
+        <button class="pay-btn" onclick="submitPayment()">Record Payment →</button>
+        <p style="font-size:12px; color:var(--muted); text-align:center; margin-top:10px;">The shop owner will confirm receipt of payment.</p>
+      </div>
+
+      <!-- Payment history -->
+      <div style="margin-top:20px;">
+        <div class="section-heading" style="font-size:15px; margin-bottom:12px;">Payment history</div>
+        <div id="paymentHistoryList"></div>
+      </div>
+    </div>
+
+  </div><!-- end cust-layout -->
+</div><!-- end custApp -->
+
+<!-- Toast -->
+<div id="toast" style="position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(80px); background:var(--dark); color:var(--white); padding:12px 24px; border-radius:99px; font-size:14px; font-weight:500; transition:transform 0.3s; z-index:9999; white-space:nowrap; box-shadow:var(--shadow-md);"></div>
+
+<script>
+// ════════════════════════════════════════
+//  DATA HELPERS
+// ════════════════════════════════════════
+function getData(key, fallback) {
+  try { return JSON.parse(localStorage.getItem(key)) || fallback; }
+  catch { return fallback; }
+}
+function setData(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+
+// ════════════════════════════════════════
+//  GOOGLE SIGN IN
+// ════════════════════════════════════════
+function handleCustomerSignIn(response) {
+  try {
+    const payload = JSON.parse(atob(response.credential.split('.')[1]));
+    const user = { name: payload.name, email: payload.email, picture: payload.picture, role: 'customer' };
+    setData('lula_cust_user', user);
+    launchCustomerApp(user);
+  } catch(e) {
+    alert('Sign-in failed. Please try again.');
+  }
+}
+
+// ════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  const user = getData('lula_cust_user', null);
+  if (user) {
+    launchCustomerApp(user);
+  }
+  // else stay on login screen
+});
+
+function launchCustomerApp(user) {
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('custApp').classList.remove('hidden');
+
+  // Set name/avatar
+  const initials = user.name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('custHeroName').textContent = 'Hello, ' + user.name.split(' ')[0] + ' 👋';
+  document.getElementById('custHeroSub').textContent  = user.email;
+  document.getElementById('custHeroAvatar').textContent  = initials;
+  document.getElementById('custHeaderAvatar').textContent = initials;
+
+  // Load customer record if exists (linked by email from owner's data)
+  const customers = getData('lula_customers', []);
+  const me = customers.find(c => c.email === user.email);
+  if (me && me.balance > 0) {
+    document.getElementById('balanceCard').style.display = 'flex';
+    document.getElementById('custBalance').textContent = 'R' + me.balance.toFixed(2);
+    document.getElementById('custBalance').classList.toggle('danger', me.balance >= me.credit * 0.8);
+    document.getElementById('custLimit').textContent = 'Credit limit: R' + (me.credit || 0).toFixed(2);
+  }
+
+  renderShops();
+  renderProducts();
+  renderHistory(user.email);
+  populateShopSelects();
+  renderCreditRequests(user.email);
+  renderPaymentHistory(user.email);
+}
+
+// ════════════════════════════════════════
+//  SHOPS LIST — all registered businesses
+// ════════════════════════════════════════
+const STORE_EMOJIS = {
+  'Spaza Shop':'🏪','Tavern / Shebeen':'🍺','Hair Salon':'💇','Barbershop':'✂️',
+  'Tuck Shop':'🛍️','Butchery':'🥩','Fruit & Veg':'🥦','Bakery':'🍞',
+  'Takeaway / Braai':'🍖','Clothing & Alterations':'👗','Nail Salon':'💅',
+  'Phone Repairs':'📱','Internet Café / Printing':'🖨️','Hardware Shop':'🔨',
+  'Pharmacy':'💊','Muthi Shop':'🌿','Laundry':'👕','Mechanic / Tyre Shop':'🔧',
+  'Creche / Daycare':'🧒','Second-Hand / Recycling':'♻️'
+};
+
+function renderShops() {
+  const biz = getData('lula_business', null);
+  const container = document.getElementById('shopsList');
+
+  // Build list — in production this comes from Supabase
+  // For now we show the owner's own business (on same device) + demo shops
+  const shops = [];
+  if (biz && biz.bizName) shops.push(biz);
+
+  // Demo shops so customers can see the concept
+  const demoShops = [
+    { bizName: "Mama Thandi's Spaza", storeType: "Spaza Shop",   ownerName: "Thandi Dlamini",  phone: "082 111 2233" },
+    { bizName: "Sipho's Butchery",    storeType: "Butchery",      ownerName: "Sipho Nkosi",     phone: "073 444 5566" },
+    { bizName: "Beauty by Zanele",    storeType: "Hair Salon",    ownerName: "Zanele Mokoena",  phone: "064 777 8899" },
+    { bizName: "JB Tavern",           storeType: "Tavern / Shebeen", ownerName: "Jabu Bhengu", phone: "078 321 6540" },
+    { bizName: "Tech Fix Pretoria",   storeType: "Phone Repairs", ownerName: "Tshepo Dube",    phone: "060 123 4567" },
+  ];
+  demoShops.forEach(d => { if (!shops.find(s => s.bizName === d.bizName)) shops.push(d); });
+
+  if (!shops.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">🏪</div>No shops registered yet.</div>`;
+    return;
+  }
+
+  container.innerHTML = shops.map((s, i) => {
+    const emoji = STORE_EMOJIS[s.storeType] || '🏬';
+    return `<div class="shop-card" onclick="viewShop(${i})">
+      <div class="shop-icon">${emoji}</div>
+      <div style="flex:1;">
+        <div class="shop-name">${s.bizName}</div>
+        <div class="shop-type">${s.storeType || 'Local Shop'}</div>
+        ${s.phone ? `<div style="font-size:12px; color:var(--muted); margin-top:2px;">📞 ${s.phone}</div>` : ''}
+      </div>
+      <div class="shop-badge"><span class="badge badge-green">Open</span></div>
+    </div>`;
+  }).join('');
+
+  // Store shops globally for reference
+  window._shops = shops;
+}
+
+function viewShop(idx) {
+  showTab('products');
+  document.getElementById('shopFilter').value = idx;
+  filterProducts(idx);
+}
+
+// ════════════════════════════════════════
+//  PRODUCTS
+// ════════════════════════════════════════
+function renderProducts(shopIdx) {
+  const products  = getData('lula_products', []);
+  const container = document.getElementById('productsList');
+
+  if (!products.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">📦</div>No products listed yet by any shop.</div>`;
+    return;
+  }
+
+  const list = shopIdx !== undefined
+    ? products // in production: filter by shop
+    : products;
+
+  container.innerHTML = list.map(p => {
+    const daysLeft = p.expiry ? Math.ceil((new Date(p.expiry) - new Date()) / 86400000) : null;
+    const outOfStock = p.stock === 0;
+    return `<div class="product-card" style="${outOfStock ? 'opacity:0.5;' : ''}">
+      <div>
+        <div class="product-name">${p.name}</div>
+        <div class="product-stock">${outOfStock ? '❌ Out of stock' : `✅ ${p.stock} available`}${daysLeft !== null && daysLeft <= 3 ? ' · ⚠️ Expiring soon' : ''}</div>
+      </div>
+      <div class="product-price">R${p.price.toFixed(2)}</div>
+    </div>`;
+  }).join('');
+}
+
+function filterProducts() {
+  const val = document.getElementById('shopFilter').value;
+  renderProducts(val === 'all' ? undefined : parseInt(val));
+}
+
+function populateShopSelects() {
+  const shops = window._shops || [];
+  const selects = ['creditShopSelect', 'payShopSelect', 'shopFilter'];
+  selects.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    // Clear existing options except first
+    while (el.options.length > 1) el.remove(1);
+    shops.forEach((s, i) => {
+      const opt = document.createElement('option');
+      opt.value = i; opt.textContent = s.bizName;
+      el.appendChild(opt);
+    });
+  });
+}
+
+// ════════════════════════════════════════
+//  HISTORY
+// ════════════════════════════════════════
+function renderHistory(email) {
+  const sales = getData('lula_sales', []);
+  const container = document.getElementById('historyList');
+
+  // In production: filter by customer email
+  // For demo: show all sales on this device
+  if (!sales.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">🧾</div>No purchase history yet.</div>`;
+    return;
+  }
+
+  container.innerHTML = sales.slice().reverse().map(s => {
+    const d = new Date(s.time);
+    const dateStr = d.toLocaleDateString('en-ZA', { day:'numeric', month:'short', year:'numeric' });
+    return `<div class="history-item">
+      <div class="history-item-left">
+        <div class="history-desc">${s.item}</div>
+        <div class="history-date">${dateStr}</div>
+      </div>
+      <div class="history-amount" style="color:var(--green);">R${s.total.toFixed(2)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════
+//  CREDIT REQUESTS
+// ════════════════════════════════════════
+function submitCreditRequest() {
+  const shop   = document.getElementById('creditShopSelect').value;
+  const item   = document.getElementById('creditItem').value.trim();
+  const amount = parseFloat(document.getElementById('creditAmount').value);
+  const note   = document.getElementById('creditNote').value.trim();
+
+  if (!shop)   { showToast('⚠ Please select a shop.'); return; }
+  if (!item)   { showToast('⚠ Tell us what you want to buy.'); return; }
+  if (!amount) { showToast('⚠ Enter an amount.'); return; }
+
+  const user    = getData('lula_cust_user', {});
+  const shops   = window._shops || [];
+  const requests = getData('lula_credit_requests', []);
+
+  requests.push({
+    id: Date.now(), customerName: user.name, customerEmail: user.email,
+    shopName: shops[shop]?.bizName || 'Unknown', item, amount, note,
+    status: 'pending', requestedAt: new Date().toISOString()
+  });
+  setData('lula_credit_requests', requests);
+
+  document.getElementById('creditItem').value   = '';
+  document.getElementById('creditAmount').value = '';
+  document.getElementById('creditNote').value   = '';
+  document.getElementById('creditShopSelect').value = '';
+
+  showToast('✓ Credit request sent! The shop owner will review it.');
+  renderCreditRequests(user.email);
+}
+
+function renderCreditRequests(email) {
+  const requests  = getData('lula_credit_requests', []);
+  const container = document.getElementById('creditRequestsList');
+  const mine      = requests.filter(r => r.customerEmail === email);
+
+  if (!mine.length) {
+    container.innerHTML = `<div class="empty-state" style="padding:20px;"><div class="empty-icon">💳</div>No credit requests yet.</div>`;
+    return;
+  }
+
+  container.innerHTML = mine.reverse().map(r => {
+    const statusMap = { pending:'badge-amber', approved:'badge-green', rejected:'badge-danger' };
+    const d = new Date(r.requestedAt).toLocaleDateString('en-ZA', { day:'numeric', month:'short' });
+    return `<div class="history-item">
+      <div class="history-item-left">
+        <div class="history-desc">${r.item} — ${r.shopName}</div>
+        <div class="history-date">${d} · R${r.amount.toFixed(2)}</div>
+      </div>
+      <span class="badge ${statusMap[r.status] || 'badge-gray'}">${r.status}</span>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════
+//  PAYMENTS
+// ════════════════════════════════════════
+function updatePayBalance() {
+  const shopIdx = document.getElementById('payShopSelect').value;
+  const info    = document.getElementById('payBalanceInfo');
+  if (!shopIdx) { info.style.display = 'none'; return; }
+
+  // In production: fetch real balance from Supabase
+  const customers = getData('lula_customers', []);
+  const user      = getData('lula_cust_user', {});
+  const me        = customers.find(c => c.email === user.email);
+  const balance   = me ? me.balance : 0;
+
+  info.style.display = 'block';
+  document.getElementById('payBalanceAmount').textContent = 'R' + balance.toFixed(2);
+}
+
+function submitPayment() {
+  const shopIdx = document.getElementById('payShopSelect').value;
+  const amount  = parseFloat(document.getElementById('payAmount').value);
+  const method  = document.getElementById('payMethod').value;
+
+  if (!shopIdx) { showToast('⚠ Please select a shop.'); return; }
+  if (!amount)  { showToast('⚠ Enter the amount you are paying.'); return; }
+
+  const user     = getData('lula_cust_user', {});
+  const shops    = window._shops || [];
+  const payments = getData('lula_payments', []);
+
+  payments.push({
+    id: Date.now(), customerName: user.name, customerEmail: user.email,
+    shopName: shops[shopIdx]?.bizName || 'Unknown', amount, method,
+    status: 'pending_confirmation', paidAt: new Date().toISOString()
+  });
+  setData('lula_payments', payments);
+
+  document.getElementById('payAmount').value = '';
+  document.getElementById('payShopSelect').value = '';
+  document.getElementById('payBalanceInfo').style.display = 'none';
+
+  showToast('✓ Payment recorded! Waiting for shop owner to confirm.');
+  renderPaymentHistory(user.email);
+}
+
+function renderPaymentHistory(email) {
+  const payments  = getData('lula_payments', []);
+  const container = document.getElementById('paymentHistoryList');
+  const mine      = payments.filter(p => p.customerEmail === email);
+
+  if (!mine.length) {
+    container.innerHTML = `<div class="empty-state" style="padding:20px;"><div class="empty-icon">💰</div>No payments recorded yet.</div>`;
+    return;
+  }
+
+  container.innerHTML = mine.reverse().map(p => {
+    const d = new Date(p.paidAt).toLocaleDateString('en-ZA', { day:'numeric', month:'short' });
+    const methodMap = { cash:'💵 Cash', eft:'🏦 EFT', ewallet:'📱 eWallet', snapscan:'📷 SnapScan' };
+    return `<div class="history-item">
+      <div class="history-item-left">
+        <div class="history-desc">${methodMap[p.method] || p.method} → ${p.shopName}</div>
+        <div class="history-date">${d} · ${p.status === 'pending_confirmation' ? '⏳ Awaiting confirmation' : '✅ Confirmed'}</div>
+      </div>
+      <div class="history-amount" style="color:var(--amber);">R${p.amount.toFixed(2)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════
+//  TAB NAVIGATION
+// ════════════════════════════════════════
+function showTab(name) {
+  ['shops','products','history','credit','pay'].forEach(t => {
+    document.getElementById('section-' + t).classList.add('hidden');
+    document.getElementById('tab-' + t).classList.remove('active');
+  });
+  document.getElementById('section-' + name).classList.remove('hidden');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+// ════════════════════════════════════════
+//  SIGN OUT
+// ════════════════════════════════════════
+function custSignOut() {
+  if (!confirm('Sign out?')) return;
+  if (typeof google !== 'undefined' && google.accounts) {
+    const user = getData('lula_cust_user', {});
+    if (user.email) google.accounts.id.revoke(user.email, () => {});
+    google.accounts.id.disableAutoSelect();
+  }
+  localStorage.removeItem('lula_cust_user');
+  sessionStorage.setItem('signed_out', '1');
+  window.location.reload();
+}
+
+// ════════════════════════════════════════
+//  TOAST
+// ════════════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  setTimeout(() => { t.style.transform = 'translateX(-50%) translateY(80px)'; }, 3200);
+}
+</script>
+
+</body>
+</html>

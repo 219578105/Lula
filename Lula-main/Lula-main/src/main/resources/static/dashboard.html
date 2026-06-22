@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lula — Dashboard</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<header class="page-header">
+  <div class="brand-mark">Lu<span>la</span></div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div class="status-pill" id="statusPill"><div class="status-dot"></div><span id="statusText">Online</span></div>
+    <button class="btn btn-sm btn-outline" onclick="triggerSync()" style="position:relative;">
+      ↑ Sync
+      <span id="pendingBadge" class="badge badge-amber" style="display:none;position:absolute;top:-8px;right:-8px;padding:2px 7px;font-size:11px;">0</span>
+    </button>
+    <div id="userAvatar" onclick="toggleUserMenu()" style="width:36px;height:36px;border-radius:50%;background:var(--green-light);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--green);cursor:pointer;border:2px solid var(--border);font-family:'Sora',sans-serif;">?</div>
+    <div id="userMenu" class="hidden" style="position:absolute;top:60px;right:16px;background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-md);padding:8px;min-width:200px;z-index:300;">
+      <div style="padding:8px 12px 12px;border-bottom:1px solid var(--border);margin-bottom:6px;">
+        <div style="font-weight:600;font-size:14px;" id="menuName">—</div>
+        <div style="font-size:12px;color:var(--muted);" id="menuEmail">—</div>
+      </div>
+      <button class="nav-item" style="font-size:13px;" onclick="window.location.href='customer.html'">👤 Switch to Customer view</button>
+      <div class="nav-divider"></div>
+      <button class="nav-item" style="font-size:13px;color:var(--danger);" onclick="signOut()">Sign out</button>
+    </div>
+  </div>
+</header>
+
+<!-- LAYOUT -->
+<div class="dash-layout">
+
+  <!-- SIDEBAR -->
+  <nav class="dash-sidebar">
+    <div class="sidebar-biz">
+      <div style="font-size:11px;color:var(--muted-light);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;">Signed in as</div>
+      <div class="sidebar-biz-name" id="sidebarBizName">My Business</div>
+      <div class="badge badge-green" style="font-size:11px;" id="sidebarStoreType">Shop</div>
+    </div>
+
+    <div class="nav-section-label">Main</div>
+    <button class="nav-item active" id="nav-overview" onclick="showSection('overview',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Overview
+    </button>
+    <button class="nav-item" id="nav-products" onclick="showSection('products',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      <span id="navProductsLabel">Products / Stock</span>
+    </button>
+    <button class="nav-item" id="nav-sales" onclick="showSection('sales',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      <span id="navSalesLabel">Sales</span>
+    </button>
+    <button class="nav-item" id="nav-customers" onclick="showSection('customers',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Customers
+    </button>
+
+    <div class="nav-divider"></div>
+    <div class="nav-section-label">Reports</div>
+    <button class="nav-item" id="nav-history" onclick="showSection('history',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      History
+    </button>
+    <button class="nav-item" id="nav-alerts" onclick="showSection('alerts',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      Alerts
+      <span class="badge badge-amber" style="margin-left:auto;font-size:11px;" id="alertsBadge" style="display:none;">0</span>
+    </button>
+    <button class="nav-item" id="nav-credit" onclick="showSection('credit',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      Credit Requests
+      <span class="badge badge-blue" style="margin-left:auto;font-size:11px;" id="creditBadge" style="display:none;">0</span>
+    </button>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="dash-content">
+
+    <!-- ── OVERVIEW ── -->
+    <div id="section-overview">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h1 style="font-size:23px;font-weight:700;" id="greetingText">Good morning 👋</h1>
+          <p style="color:var(--muted);font-size:14px;" id="dateText">—</p>
+        </div>
+        <div class="quick-actions" id="quickActions"></div>
+      </div>
+
+      <!-- Business-type tip banner -->
+      <div id="tipBanner" class="alert alert-info" style="margin-bottom:20px;display:none;"></div>
+
+      <!-- Alerts inline -->
+      <div id="alertsInline" style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;"></div>
+
+      <!-- Stats -->
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card accent">
+          <div class="stat-icon">💰</div>
+          <div class="stat-label">Today's Revenue</div>
+          <div class="stat-value" id="statRevenue">R 0.00</div>
+          <div class="stat-sub" id="statSalesCount">0 transactions</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:var(--green-light);">📦</div>
+          <div class="stat-label" id="statStockLabel">Items in Stock</div>
+          <div class="stat-value" id="statProducts">0</div>
+          <div class="stat-sub">products tracked</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:var(--blue-light);">👥</div>
+          <div class="stat-label">Customers</div>
+          <div class="stat-value" id="statCustomers">0</div>
+          <div class="stat-sub">registered</div>
+        </div>
+        <div class="stats-grid" id="statsGrid">
+  <div class="stat-card accent">
+    <div class="stat-icon">💰</div>
+    <div class="stat-label">Today's Revenue</div>
+    <div class="stat-value" id="statRevenue">R 0.00</div>
+    <div class="stat-sub" id="statSalesCount">0 transactions</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:var(--green-light);">📦</div>
+    <div class="stat-label" id="statStockLabel">Items in Stock</div>
+    <div class="stat-value" id="statProducts">0</div>
+    <div class="stat-sub">products tracked</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:var(--blue-light);">👥</div>
+    <div class="stat-label">Customers</div>
+    <div class="stat-value" id="statCustomers">0</div>
+    <div class="stat-sub">registered</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:var(--amber-light);">🔄</div>
+    <div class="stat-label">Pending Sync</div>
+    <div class="stat-value" id="statPending">0</div>
+    <div class="stat-sub">items to upload</div>
+  </div>
+</div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:var(--amber-light);">🔄</div>
+          <div class="stat-label">Pending Sync</div>
+          <div class="stat-value" id="statPending">0</div>
+          <div class="stat-sub">items to upload</div>
+        </div>
+      </div>
+
+      <!-- Recent transactions -->
+      <div class="card" style="margin-bottom:18px;">
+        <div class="section-heading">
+          Recent Transactions
+          <button class="btn btn-sm btn-outline" style="margin-left:auto;" onclick="openModal('saleModal')" id="newTxBtn">+ New</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Description</th><th>Amount (ZAR)</th><th>Change</th><th>Time</th><th>Status</th></tr></thead>
+            <tbody id="salesTableBody"><tr><td colspan="5"><div class="empty-state"><div class="empty-icon">🧾</div><div class="empty-title">No transactions yet</div><div class="empty-sub">Tap <strong>+ New</strong> to record your first sale.</div></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Stock overview -->
+      <div class="card">
+        <div class="section-heading">
+          <span id="stockSectionLabel">Stock Overview</span>
+          <button class="btn btn-sm btn-outline" style="margin-left:auto;" onclick="openModal('productModal')">+ Add</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th id="prodColName">Product / Service</th><th>Price (ZAR)</th><th id="prodColStock">Qty</th><th>Expiry</th><th>Status</th></tr></thead>
+            <tbody id="productsTableBody"><tr><td colspan="5"><div class="empty-state"><div class="empty-icon">📦</div><div class="empty-title">No products added yet</div><div class="empty-sub">Tap <strong>+ Add</strong> to add your first product or service.</div></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PRODUCTS ── -->
+    <div id="section-products" class="hidden">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+        <h1 style="font-size:22px;font-weight:700;" id="productsSectionTitle">Products &amp; Stock</h1>
+        <button class="action-btn primary" onclick="openModal('productModal')">+ Add Product</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Name</th><th>Price (ZAR)</th><th>Stock</th><th>Expiry</th><th>Status</th></tr></thead>
+            <tbody id="productsTableBody2"><tr><td colspan="5"><div class="empty-state"><div class="empty-icon">📦</div><div class="empty-title">No products yet</div></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SALES ── -->
+    <div id="section-sales" class="hidden">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+        <h1 style="font-size:22px;font-weight:700;" id="salesSectionTitle">Sales</h1>
+        <button class="action-btn primary" id="newSaleBtn" onclick="openModal('saleModal')">+ New Sale</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Description</th><th>Amount (ZAR)</th><th>Cash Received</th><th>Change</th><th>Date &amp; Time</th><th>Status</th></tr></thead>
+            <tbody id="salesTableBody2"><tr><td colspan="6"><div class="empty-state"><div class="empty-icon">💰</div><div class="empty-title">No sales recorded yet</div></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CUSTOMERS ── -->
+    <div id="section-customers" class="hidden">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+        <h1 style="font-size:22px;font-weight:700;">Customers</h1>
+        <button class="action-btn primary" onclick="openModal('customerModal')">+ Add Customer</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Name</th><th>Phone</th><th>Credit Limit (ZAR)</th><th>Balance (ZAR)</th><th>Actions</th></tr></thead>
+            <tbody id="customersTableBody"><tr><td colspan="5"><div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">No customers yet</div><div class="empty-sub">Add customers to track credit and purchases.</div></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── HISTORY ── -->
+    <div id="section-history" class="hidden">
+      <h1 style="font-size:22px;font-weight:700;margin-bottom:20px;">Sales History</h1>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Description</th><th>Amount (ZAR)</th><th>Change (ZAR)</th><th>Date &amp; Time</th><th>Sync</th></tr></thead>
+            <tbody id="historyTableBody"><tr><td colspan="5"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No history yet</div></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ALERTS ── -->
+    <div id="section-alerts" class="hidden">
+      <h1 style="font-size:22px;font-weight:700;margin-bottom:20px;">Alerts</h1>
+      <div id="alertsFull" style="display:flex;flex-direction:column;gap:10px;">
+        <div class="alert alert-success">✅ No alerts right now. Everything looks good!</div>
+      </div>
+    </div>
+
+    <!-- ── CREDIT REQUESTS ── -->
+    <div id="section-credit" class="hidden">
+      <h1 style="font-size:22px;font-weight:700;margin-bottom:6px;">Credit Requests</h1>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:20px;">Requests from customers to buy on credit.</p>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Customer</th><th>Item(s)</th><th>Amount (ZAR)</th><th>Note</th><th>Date</th><th>Action</th></tr></thead>
+            <tbody id="creditRequestsBody"><tr><td colspan="6"><div class="empty-state"><div class="empty-icon">💳</div><div class="empty-title">No credit requests yet</div></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══ MODALS ══ -->
+
+<!-- New Sale / Transaction Modal -->
+<div class="modal-overlay hidden" id="saleModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="saleModalTitle">New Sale</div>
+      <button class="modal-close" onclick="closeModal('saleModal')">×</button>
+    </div>
+    <div class="input-group">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="input-group">
+        <label for="saleItem">Item(s) sold</label>
+<input type="text" id="saleItem" />
+        <div class="input-prefix">
+          <span class="input-prefix-label">R</span>
+          <input type="number" id="saleTotal" placeholder="0.00" min="0" step="0.01" oninput="calcChange()"/>
+        </div>
+      </div>
+      <div class="input-group">
+        <label for="saleCash">Cash received</label>
+<input type="number" id="saleCash" />
+        <div class="input-prefix">
+          <span class="input-prefix-label">R</span>
+          <input type="number" id="saleCash" placeholder="0.00" min="0" step="0.01" oninput="calcChange()"/>
+        </div>
+      </div>
+    </div>
+
+    <div id="changeBox" class="change-box hidden">
+      <div class="change-box-label">Change to give customer</div>
+      <div class="change-box-amount" id="changeAmount">R 0.00</div>
+    </div>
+    <div id="changeError" class="change-box change-box-error hidden">
+      <div class="change-box-amount">⚠ Cash received is less than total!</div>
+    </div>
+
+    <div class="input-group">
+    
+        <label for="saleCustomer">Customer (optional)</label>
+      <select id="saleCustomer">
+        <option value="">— Walk-in customer —</option>
+      </select>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:4px;">
+      <button class="btn btn-outline" onclick="closeModal('saleModal')">Cancel</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="recordSale()">Record Sale ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Product Modal -->
+<div class="modal-overlay hidden" id="productModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="productModalTitle">Add Product</div>
+      <button class="modal-close" onclick="closeModal('productModal')">×</button>
+    </div>
+    <div class="input-group">
+     <label for="prodName">Product name</label>
+<input type="text" id="prodName" />
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="input-group">
+        <label for="prodPrice">Price (ZAR)</label>
+<input type="number" id="prodPrice" />
+        <div class="input-prefix">
+          <span class="input-prefix-label">R</span>
+          <input type="number" id="prodPrice" placeholder="0.00" min="0" step="0.01"/>
+        </div>
+      </div>
+      <div class="input-group">
+       <label for="prodStock">Stock qty</label>
+<input type="number" id="prodStock" />
+      </div>
+    </div>
+    <div class="input-group" id="expiryGroup">
+     <label for="prodStock">Stock qty</label>
+<input type="number" id="prodStock" />
+    </div>
+    <div class="input-group">
+      <label for="prodCategory">Category <span>(optional)</span></label>
+<select id="prodCategory">
+        <option value="">— Select category —</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px;">
+      <button class="btn btn-outline" onclick="closeModal('productModal')">Cancel</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="addProduct()">Add Product ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Customer Modal -->
+<div class="modal-overlay hidden" id="customerModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">Add Customer</div>
+      <button class="modal-close" onclick="closeModal('customerModal')">×</button>
+    </div>
+    <div class="input-group">
+     <label for="custName">Full name</label>
+<input type="text" id="custName" />
+    </div>
+    <div class="input-group">
+      <label for="custPhone">Phone number</label>
+<input type="tel" id="custPhone" />
+    </div>
+    <div class="input-group">
+     <label for="custCredit">Credit limit (ZAR)</label>
+<input type="number" id="custCredit" />
+        <span class="input-prefix-label">R</span>
+        <input type="number" id="custCredit" placeholder="0.00" min="0" step="0.01"/>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px;">
+      <button class="btn btn-outline" onclick="closeModal('customerModal')">Cancel</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="addCustomer()">Add Customer ✓</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  // API Base URL
+const API_BASE = 'http://localhost:8080/api';
+
+// Test the connection
+function testApiConnection() {
+    fetch(`${API_BASE}/products?businessId=1`)
+        .then(response => {
+            console.log('API Response Status:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('Products from API:', data);
+            showToast('✅ API connection successful! Products: ' + data.length);
+        })
+        .catch(error => {
+            console.error('API Error:', error);
+            showToast('❌ API connection failed! Check console.');
+        });
+}
+
+// Call this when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // ... existing code ...
+    testApiConnection();
+});
+// ════════════════════════════════
+//  BUSINESS TYPE CONFIG
+//  Personalises the dashboard per store type
+// ════════════════════════════════
+const BIZ_CONFIG = {
+  'Spaza Shop':           { emoji:'🏪', saleName:'Sale',        itemLabel:'Items sold',         stockLabel:'Grocery Items',  categories:['Bread & Bakery','Drinks','Dairy','Snacks','Cleaning','Airtime','Toiletries','Other'], tip:'Track expiry dates closely — expired stock is lost profit.', showExpiry:true },
+  'Tavern / Shebeen':     { emoji:'🍺', saleName:'Order',       itemLabel:'Drinks / items sold',stockLabel:'Drinks & Stock', categories:['Beer','Spirits','Wine','Ciders','Soft Drinks','Snacks','Other'], tip:'Track which drinks sell most to order smartly.', showExpiry:false },
+  'Hair Salon':           { emoji:'💇', saleName:'Appointment', itemLabel:'Service performed',  stockLabel:'Services & Products', categories:['Wash & Set','Braids','Relaxer','Weave','Natural Hair','Products','Other'], tip:'Add your services as "products" with their prices to track income easily.', showExpiry:false },
+  'Barbershop':           { emoji:'✂️', saleName:'Cut',         itemLabel:'Service / cut type', stockLabel:'Services',       categories:['Full Cut','Fade','Shave','Lineup','Kids Cut','Other'], tip:'Track daily cuts to see your busiest days and plan staffing.', showExpiry:false },
+  'Tuck Shop':            { emoji:'🛍️', saleName:'Sale',        itemLabel:'Items sold',         stockLabel:'Stock Items',    categories:['Snacks','Drinks','Stationery','Airtime','Sweets','Other'], tip:'Keep airtime and sweets stocked — top sellers in tuck shops.', showExpiry:true },
+  'Butchery':             { emoji:'🥩', saleName:'Sale',        itemLabel:'Meat / items sold',  stockLabel:'Meat & Stock',   categories:['Beef','Chicken','Pork','Lamb','Offal','Boerewors','Other'], tip:'Meat has short shelf life — use expiry tracking to avoid waste.', showExpiry:true },
+  'Fruit & Veg':          { emoji:'🥦', saleName:'Sale',        itemLabel:'Produce sold',       stockLabel:'Produce',        categories:['Vegetables','Fruits','Herbs','Potatoes','Onions','Other'], tip:'⚠ Fresh produce expires fast. Check alerts daily to avoid waste.', showExpiry:true },
+  'Bakery':               { emoji:'🍞', saleName:'Sale',        itemLabel:'Baked goods sold',   stockLabel:'Products',       categories:['Bread','Rolls','Cakes','Vetkoek','Pies','Other'], tip:'Day-old stock can be discounted — use expiry tracking to flag it.', showExpiry:true },
+  'Takeaway / Braai Spot':{ emoji:'🍖', saleName:'Order',       itemLabel:'Food / order',       stockLabel:'Menu Items',     categories:['Chicken','Beef','Pap & Vleis','Chips','Sides','Drinks','Other'], tip:'Track best-selling items to plan daily prep.', showExpiry:false },
+  'Clothing & Alterations':{ emoji:'👗',saleName:'Sale',        itemLabel:'Item sold / service',stockLabel:'Items',          categories:['Tops','Bottoms','Dresses','Alterations','School Uniform','Other'], tip:'Add seasonal items to your stock — track what sells per season.', showExpiry:false },
+  'Nail Salon':           { emoji:'💅', saleName:'Appointment', itemLabel:'Service performed',  stockLabel:'Services',       categories:['Manicure','Pedicure','Gel Nails','Acrylic','Nail Art','Other'], tip:'Track popular nail designs to stock the right colours.', showExpiry:false },
+  'Cell Phone Repairs':   { emoji:'📱', saleName:'Job',         itemLabel:'Repair / service',   stockLabel:'Parts & Services',categories:['Screen Repair','Battery','Charging Port','Software','Accessories','Other'], tip:'Track parts inventory to avoid delays on common repairs.', showExpiry:false },
+  'Internet Café / Printing':{ emoji:'🖨️',saleName:'Session',  itemLabel:'Service used',       stockLabel:'Services',       categories:['Printing','Scanning','Internet','CV Writing','Forms','Other'], tip:'Offer CV and form-filling services — high demand in townships.', showExpiry:false },
+  'Hardware Shop':        { emoji:'🔨', saleName:'Sale',        itemLabel:'Items sold',         stockLabel:'Hardware Stock', categories:['Cement','Paint','Tools','Plumbing','Electrical','Other'], tip:'Track bulk materials carefully — theft and waste are common.', showExpiry:false },
+  'Pharmacy / Chemist':   { emoji:'💊', saleName:'Dispensing',  itemLabel:'Medication / product',stockLabel:'Medicines',     categories:['Chronic Meds','OTC Medicines','Baby Care','Personal Care','Vitamins','Other'], tip:'⚠ Expired medication is a serious risk — check expiry alerts daily.', showExpiry:true },
+  'Muthi Shop':           { emoji:'🌿', saleName:'Sale',        itemLabel:'Product sold',       stockLabel:'Products',       categories:['Roots','Herbs','Powders','Oils','Traditional Meds','Other'], tip:'Track expiry on perishable herbs and roots.', showExpiry:true },
+  'Laundry & Dry Cleaning':{ emoji:'👕',saleName:'Job',         itemLabel:'Laundry service',    stockLabel:'Services',       categories:['Wash & Iron','Dry Clean','Duvet','Curtains','School Uniform','Other'], tip:'Track uncollected items — add customer contact when recording a job.', showExpiry:false },
+  'Mechanic / Tyre Shop': { emoji:'🔧', saleName:'Job',         itemLabel:'Repair / service',   stockLabel:'Parts & Tyres',  categories:['Tyres','Oil Change','Brakes','Engine','Body Work','Other'], tip:'Track parts used per job to manage your parts stock.', showExpiry:false },
+  'Creche / Daycare':     { emoji:'🧒', saleName:'Payment',     itemLabel:'Fee / service',      stockLabel:'Supplies',       categories:['Monthly Fee','Meals','Aftercare','Supplies','Other'], tip:'Track monthly payments per child — use the Customers section for each family.', showExpiry:true },
+  'Funeral Parlour':      { emoji:'🕊️', saleName:'Service',     itemLabel:'Service / package',  stockLabel:'Packages',       categories:['Burial','Cremation','Embalming','Flowers','Coffin','Other'], tip:'Sensitive service — keep records accurate for family documentation.', showExpiry:false },
+  'Recycling / Second-Hand':{ emoji:'♻️',saleName:'Purchase',   itemLabel:'Items bought/sold',  stockLabel:'Items',          categories:['Metals','Paper','Plastic','Electronics','Clothing','Other'], tip:'Track buying and selling prices per item to calculate profit.', showExpiry:false },
+  'Car Wash':             { emoji:'🚿', saleName:'Wash',        itemLabel:'Service type',       stockLabel:'Services',       categories:['Basic Wash','Full Valet','Interior','Polish','Other'], tip:'Track peak hours to schedule staff better.', showExpiry:false },
+  'Garden & Landscaping': { emoji:'🌱', saleName:'Job',         itemLabel:'Service performed',  stockLabel:'Services',       categories:['Lawn Mowing','Planting','Clean-up','Watering','Other'], tip:'Add repeat clients to Customers for easy rebooking.', showExpiry:false },
+};
+const DEFAULT_CONFIG = { emoji:'🏬', saleName:'Sale', itemLabel:'Items / service', stockLabel:'Stock', categories:['Products','Services','Other'], tip:'Welcome to Lula! Start by adding your products and recording sales.', showExpiry:true };
+
+function getBizConfig() {
+  const biz = getData('lula_business', {});
+  return BIZ_CONFIG[biz.storeType] || DEFAULT_CONFIG;
+}
+
+// ════════════════════════════════
+//  DATA HELPERS
+// ════════════════════════════════
+function getData(k,fb){ try{ return JSON.parse(localStorage.getItem(k))||fb; }catch{ return fb; } }
+function setData(k,v){ localStorage.setItem(k,JSON.stringify(v)); }
+
+let products  = getData('lula_products', []);
+let sales     = getData('lula_sales', []);
+let customers = getData('lula_customers', []);
+let pending   = getData('lula_pending', 0);
+
+function zar(n){ return 'R\u00a0' + Number(n).toFixed(2); }
+
+// ════════════════════════════════
+//  INIT
+// ════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  const biz  = getData('lula_business', {});
+  const user = getData('lula_user', {});
+  const cfg  = getBizConfig();
+
+  // Redirect customers
+  if (localStorage.getItem('lula_role') === 'customer') {
+    window.location.href = 'customer.html'; return;
+  }
+
+  // Sidebar
+  document.getElementById('sidebarBizName').textContent = biz.bizName || user.name || 'My Business';
+  document.getElementById('sidebarStoreType').textContent = (cfg.emoji + ' ' + (biz.storeType || 'Shop'));
+
+  // User menu
+  const initials = (user.name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('userAvatar').textContent = initials;
+  document.getElementById('menuName').textContent  = user.name || '—';
+  document.getElementById('menuEmail').textContent = user.email || '—';
+
+  // Greeting
+  const hr = new Date().getHours();
+  const greet = hr<12?'Good morning':hr<17?'Good afternoon':'Good evening';
+  document.getElementById('greetingText').textContent = `${greet}, ${(biz.bizName||user.name||'').split(' ')[0]} ${cfg.emoji}`;
+  document.getElementById('dateText').textContent = new Date().toLocaleDateString('en-ZA',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+  // Personalise labels
+  document.getElementById('navSalesLabel').textContent = cfg.saleName + 's';
+  document.getElementById('navProductsLabel').textContent = cfg.stockLabel;
+  document.getElementById('statStockLabel').textContent = cfg.stockLabel;
+  document.getElementById('stockSectionLabel').textContent = cfg.stockLabel;
+  document.getElementById('productsSectionTitle').textContent = cfg.stockLabel;
+  document.getElementById('salesSectionTitle').textContent = cfg.saleName + ' Records';
+  document.getElementById('saleModalTitle').textContent = 'New ' + cfg.saleName;
+  document.getElementById('productModalTitle').textContent = 'Add to ' + cfg.stockLabel;
+  document.getElementById('saleItemLabel').textContent = cfg.itemLabel;
+  document.getElementById('prodNameLabel').textContent = (cfg.stockLabel === 'Services' ? 'Service name' : 'Product name');
+  document.getElementById('newTxBtn').textContent = '+ New ' + cfg.saleName;
+  document.getElementById('newSaleBtn').textContent = '+ New ' + cfg.saleName;
+
+  // Hide expiry field if not relevant
+  if (!cfg.showExpiry) document.getElementById('expiryGroup').style.display = 'none';
+
+  // Populate categories
+  const catSel = document.getElementById('prodCategory');
+  cfg.categories.forEach(c => { const o = document.createElement('option'); o.value=c; o.textContent=c; catSel.appendChild(o); });
+
+  // Tip banner
+  if (cfg.tip) {
+    const banner = document.getElementById('tipBanner');
+    banner.textContent = '💡 ' + cfg.tip;
+    banner.style.display = 'flex';
+  }
+
+  // Quick actions
+  document.getElementById('quickActions').innerHTML = `
+    <button class="action-btn primary" onclick="openModal('saleModal')">+ New ${cfg.saleName}</button>
+    <button class="action-btn" onclick="openModal('productModal')">+ Add Stock</button>
+    <button class="action-btn" onclick="openModal('customerModal')">+ Customer</button>
+  `;
+
+  // Populate customer select in sale modal
+  refreshCustomerSelect();
+
+  updateUI();
+  checkOnline();
+  window.addEventListener('online',  checkOnline);
+  window.addEventListener('offline', checkOnline);
+  document.addEventListener('click', e => {
+    if (!e.target.closest('#userAvatar') && !e.target.closest('#userMenu')) {
+      document.getElementById('userMenu').classList.add('hidden');
+    }
+  });
+});
+
+function refreshCustomerSelect() {
+  const sel = document.getElementById('saleCustomer');
+  while(sel.options.length > 1) sel.remove(1);
+  customers.forEach(c => { const o=document.createElement('option'); o.value=c.id; o.textContent=c.name+(c.phone?' ('+c.phone+')':''); sel.appendChild(o); });
+}
+
+// ════════════════════════════════
+//  ONLINE / OFFLINE
+// ════════════════════════════════
+function checkOnline() {
+  const online = navigator.onLine;
+  document.getElementById('statusPill').className = 'status-pill ' + (online?'status-online':'status-offline');
+  document.getElementById('statusText').textContent = online ? 'Online' : 'Offline';
+}
+
+function triggerSync() {
+  if (!navigator.onLine) { showToast('⚠ No internet — will sync when back online.'); return; }
+  pending = 0; setData('lula_pending', 0);
+  document.getElementById('pendingBadge').style.display = 'none';
+  document.getElementById('statPending').textContent = '0';
+  sales = sales.map(s => ({...s, synced:true})); setData('lula_sales', sales);
+  showToast('✓ All data synced to cloud successfully!');
+}
+
+function addPending() {
+  pending++; setData('lula_pending', pending);
+  const b = document.getElementById('pendingBadge');
+  b.textContent = pending; b.style.display = 'flex';
+ document.getElementById('statPending').textContent = pending;
+}
+
+// ════════════════════════════════
+//  UI UPDATE
+// ════════════════════════════════
+function updateUI() {
+  const now = new Date();
+  const todaySales = sales.filter(s => new Date(s.time).toDateString() === now.toDateString());
+  const revenue = todaySales.reduce((sum,s) => sum+s.total, 0);
+
+  document.getElementById('statRevenue').textContent    = zar(revenue);
+  document.getElementById('statSalesCount').textContent = `${todaySales.length} transaction${todaySales.length!==1?'s':''} today`;
+  document.getElementById('statProducts').textContent   = products.length;
+  document.getElementById('statCustomers').textContent  = customers.length;
+
+  renderSalesTable('salesTableBody',   sales.slice(-8).reverse(), false);
+  renderSalesTable('salesTableBody2',  sales.slice().reverse(), true);
+  renderSalesTable('historyTableBody', sales.slice().reverse(), false);
+  renderProductsTable('productsTableBody');
+  renderProductsTable('productsTableBody2');
+  renderCustomersTable();
+  renderAlerts();
+  renderCreditRequests();
+}
+
+// ════════════════════════════════
+//  SALES
+// ════════════════════════════════
+function calcChange() {
+  const total = parseFloat(document.getElementById('saleTotal').value)||0;
+  const cash  = parseFloat(document.getElementById('saleCash').value)||0;
+  const box   = document.getElementById('changeBox');
+  const err   = document.getElementById('changeError');
+  if (cash > 0 && total > 0) {
+    if (cash >= total) {
+      box.classList.remove('hidden'); err.classList.add('hidden');
+      document.getElementById('changeAmount').textContent = zar(cash - total);
+    } else {
+      box.classList.add('hidden'); err.classList.remove('hidden');
+    }
+  } else { box.classList.add('hidden'); err.classList.add('hidden'); }
+}
+
+function recordSale() {
+  const item  = document.getElementById('saleItem').value.trim();
+  const total = parseFloat(document.getElementById('saleTotal').value);
+  const cash  = parseFloat(document.getElementById('saleCash').value)||0;
+  const custId= document.getElementById('saleCustomer').value;
+  if (!item)  { showToast('⚠ Enter what was sold.'); return; }
+  if (!total) { showToast('⚠ Enter the total amount.'); return; }
+  if (cash && cash < total) { showToast('⚠ Cash received is less than total.'); return; }
+
+  const cust = custId ? customers.find(c=>c.id==custId) : null;
+  const sale = { id:Date.now(), item, total, cash:cash||total, change:cash?Math.max(0,cash-total):0, time:new Date().toISOString(), synced:false, customer:cust?cust.name:'' };
+  sales.push(sale); setData('lula_sales', sales);
+  addPending(); updateUI(); closeModal('saleModal');
+  showToast(`✓ ${getBizConfig().saleName} recorded${sale.change>0?' — change: '+zar(sale.change):''}`);
+  ['saleItem','saleTotal','saleCash'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('saleCustomer').value='';
+  document.getElementById('changeBox').classList.add('hidden');
+}
+
+function renderSalesTable(id, data, showCash) {
+  const tbody = document.getElementById(id); if(!tbody) return;
+  if (!data.length) { tbody.innerHTML=`<tr><td colspan="${showCash?6:5}"><div class="empty-state"><div class="empty-icon">🧾</div><div class="empty-title">No transactions yet</div></div></td></tr>`; return; }
+  const cfg = getBizConfig();
+  tbody.innerHTML = data.map(s => {
+    const d = new Date(s.time);
+    const timeStr = d.toLocaleString('en-ZA',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+    const cashCell = showCash ? `<td class="td-mono">${zar(s.cash)}</td>` : '';
+    return `<tr>
+      <td class="td-main">${s.item}${s.customer?`<div style="font-size:12px;color:var(--muted);font-weight:400;">👤 ${s.customer}</div>`:''}` +
+      `</td><td class="td-mono">${zar(s.total)}</td>
+      ${cashCell}
+      <td>${s.change>0?`<span style="color:var(--green);font-weight:600;">${zar(s.change)}</span>`:'—'}</td>
+      <td style="color:var(--muted);font-size:13px;">${timeStr}</td>
+      <td><span class="badge ${s.synced?'badge-green':'badge-amber'}">${s.synced?'Synced':'Pending'}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ════════════════════════════════
+//  PRODUCTS
+// ════════════════════════════════
+function addProduct() {
+  const name   = document.getElementById('prodName').value.trim();
+  const price  = parseFloat(document.getElementById('prodPrice').value);
+  const stock  = parseInt(document.getElementById('prodStock').value)||0;
+  const expiry = document.getElementById('prodExpiry').value;
+  const cat    = document.getElementById('prodCategory').value;
+  if (!name)  { showToast('⚠ Enter a product name.'); return; }
+  if (!price) { showToast('⚠ Enter the price.'); return; }
+  products.push({ id:Date.now(), name, price, stock, expiry:expiry||null, category:cat });
+  setData('lula_products', products); addPending(); updateUI(); closeModal('productModal');
+  showToast(`✓ "${name}" added.`);
+  ['prodName','prodPrice','prodStock','prodExpiry'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('prodCategory').value='';
+}
+
+function renderProductsTable(id) {
+  const tbody = document.getElementById(id); if(!tbody) return;
+  if (!products.length) { tbody.innerHTML=`<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">📦</div><div class="empty-title">No products yet</div></div></td></tr>`; return; }
+  tbody.innerHTML = products.map(p => {
+    const daysLeft = p.expiry ? Math.ceil((new Date(p.expiry)-new Date())/86400000) : null;
+    let status = '<span class="badge badge-green">In Stock</span>';
+    let expiryCell = p.expiry || '—';
+    if (p.stock===0) status='<span class="badge badge-danger">Out of Stock</span>';
+    else if (p.stock<5) status='<span class="badge badge-amber">Low Stock</span>';
+    if (daysLeft!==null) {
+      if (daysLeft<=0)  { status='<span class="badge badge-danger">Expired</span>'; expiryCell=`<span style="color:var(--danger);font-weight:600;">${p.expiry}</span>`; }
+      else if (daysLeft<=3) { status='<span class="badge badge-danger">Expires Soon</span>'; expiryCell=`<span style="color:var(--danger);">${p.expiry}</span>`; }
+      else if (daysLeft<=7) expiryCell=`<span style="color:var(--amber);">${p.expiry}</span>`;
+    }
+    return `<tr>
+      <td class="td-main">${p.name}${p.category?`<div style="font-size:12px;color:var(--muted);font-weight:400;">${p.category}</div>`:''}` +
+      `</td><td class="td-mono">${zar(p.price)}</td>
+      <td>${p.stock}</td>
+      <td style="font-size:13px;">${expiryCell}</td>
+      <td>${status}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ════════════════════════════════
+//  CUSTOMERS
+// ════════════════════════════════
+function addCustomer() {
+  const name  = document.getElementById('custName').value.trim();
+  const phone = document.getElementById('custPhone').value.trim();
+  const credit= parseFloat(document.getElementById('custCredit').value)||0;
+  if (!name) { showToast('⚠ Enter customer name.'); return; }
+  customers.push({ id:Date.now(), name, phone, credit, balance:0 });
+  setData('lula_customers', customers); addPending(); updateUI(); refreshCustomerSelect(); closeModal('customerModal');
+  showToast(`✓ "${name}" added.`);
+  ['custName','custPhone','custCredit'].forEach(id => document.getElementById(id).value='');
+}
+
+function renderCustomersTable() {
+  const tbody = document.getElementById('customersTableBody'); if(!tbody) return;
+  if (!customers.length) { tbody.innerHTML=`<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">No customers yet</div></div></td></tr>`; return; }
+  tbody.innerHTML = customers.map(c => {
+    const bal = c.balance||0;
+    const overLimit = c.credit > 0 && bal >= c.credit;
+    return `<tr>
+      <td class="td-main">${c.name}</td>
+      <td style="color:var(--muted);">${c.phone||'—'}</td>
+      <td class="td-mono">${c.credit>0?zar(c.credit):'—'}</td>
+      <td><span class="badge ${overLimit?'badge-danger':bal>0?'badge-amber':'badge-green'}">${zar(bal)}</span></td>
+      <td>
+        <button class="btn btn-sm btn-outline" onclick="adjustBalance(${c.id},1)" style="padding:4px 10px;font-size:12px;">+ Credit</button>
+        <button class="btn btn-sm btn-outline" onclick="adjustBalance(${c.id},-1)" style="padding:4px 10px;font-size:12px;margin-left:4px;">− Pay</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function adjustBalance(id, dir) {
+  const c = customers.find(x=>x.id===id); if(!c) return;
+  const amt = parseFloat(prompt(`Enter amount to ${dir>0?'add to':'subtract from'} ${c.name}'s balance (R):`));
+  if (isNaN(amt)||amt<=0) return;
+  c.balance = Math.max(0, (c.balance||0) + (dir * amt));
+  setData('lula_customers', customers); updateUI();
+  showToast(`✓ Balance updated: ${c.name} now owes ${zar(c.balance)}`);
+}
+
+// ════════════════════════════════
+//  ALERTS
+// ════════════════════════════════
+function renderAlerts() {
+  const alerts = [];
+  if (pending>0) alerts.push({type:'warning', msg:`🔄 ${pending} item${pending>1?'s':''} waiting to sync. Tap ↑ Sync when online.`});
+  products.forEach(p => {
+    if (p.stock===0) alerts.push({type:'danger', msg:`❌ "${p.name}" is out of stock!`});
+    else if (p.stock<5) alerts.push({type:'warning', msg:`⚠ "${p.name}" is low — only ${p.stock} left.`});
+    if (p.expiry) {
+      const days = Math.ceil((new Date(p.expiry)-new Date())/86400000);
+      if (days<=0) alerts.push({type:'danger', msg:`🚨 "${p.name}" has EXPIRED! Remove from shelves immediately.`});
+      else if (days<=3) alerts.push({type:'danger', msg:`⚠ "${p.name}" expires in ${days} day${days>1?'s':''}!`});
+      else if (days<=7) alerts.push({type:'warning', msg:`📅 "${p.name}" expires in ${days} days.`});
+    }
+  });
+  customers.forEach(c => {
+    if (c.credit>0 && (c.balance||0)>=c.credit) alerts.push({type:'danger', msg:`💳 ${c.name} has reached their credit limit of ${zar(c.credit)}.`});
+  });
+
+  // Badge
+  const badge = document.getElementById('alertsBadge');
+  if (alerts.length) { badge.textContent=alerts.length; badge.style.display='flex'; }
+  else badge.style.display='none';
+
+  const inline = alerts.slice(0,3).map(a=>`<div class="alert alert-${a.type==='danger'?'danger':'warning'}">${a.msg}</div>`).join('');
+  document.getElementById('alertsInline').innerHTML = inline;
+  document.getElementById('alertsFull').innerHTML = alerts.length
+    ? alerts.map(a=>`<div class="alert alert-${a.type==='danger'?'danger':'warning'}">${a.msg}</div>`).join('')
+    : '<div class="alert alert-success">✅ No alerts right now. Everything looks good!</div>';
+}
+
+// ════════════════════════════════
+//  CREDIT REQUESTS
+// ════════════════════════════════
+function renderCreditRequests() {
+  const requests = getData('lula_credit_requests', []);
+  const pending_cr = requests.filter(r=>r.status==='pending');
+  const badge = document.getElementById('creditBadge');
+  if (pending_cr.length) { badge.textContent=pending_cr.length; badge.style.display='flex'; }
+  else badge.style.display='none';
+
+  const tbody = document.getElementById('creditRequestsBody'); if(!tbody) return;
+  if (!requests.length) { tbody.innerHTML=`<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">💳</div><div class="empty-title">No credit requests yet</div></div></td></tr>`; return; }
+  tbody.innerHTML = requests.slice().reverse().map(r => {
+    const d = new Date(r.requestedAt).toLocaleDateString('en-ZA',{day:'numeric',month:'short'});
+    return `<tr>
+      <td class="td-main">${r.customerName}</td>
+      <td>${r.item}</td>
+      <td class="td-mono">${zar(r.amount)}</td>
+      <td style="color:var(--muted);font-size:13px;">${r.note||'—'}</td>
+      <td style="color:var(--muted);font-size:13px;">${d}</td>
+      <td>
+        ${r.status==='pending'?`
+          <button class="btn btn-sm btn-primary" onclick="handleCredit(${r.id},'approved')" style="padding:5px 12px;font-size:12px;">Approve</button>
+          <button class="btn btn-sm btn-danger" onclick="handleCredit(${r.id},'rejected')" style="padding:5px 12px;font-size:12px;margin-left:4px;">Decline</button>
+        `:`<span class="badge ${r.status==='approved'?'badge-green':'badge-danger'}">${r.status}</span>`}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function handleCredit(id, status) {
+  const requests = getData('lula_credit_requests', []);
+  const r = requests.find(x=>x.id===id); if(!r) return;
+  r.status = status;
+  if (status==='approved') {
+    const c = customers.find(x=>x.name===r.customerName);
+    if (c) { c.balance=(c.balance||0)+r.amount; setData('lula_customers',customers); }
+  }
+  setData('lula_credit_requests', requests);
+  showToast(`✓ Request ${status}.`);
+  updateUI();
+}
+
+// ════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════
+function showSection(name, btn) {
+  document.querySelectorAll('[id^="section-"]').forEach(el=>el.classList.add('hidden'));
+  document.getElementById('section-'+name).classList.remove('hidden');
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  updateUI();
+}
+
+// ════════════════════════════════
+//  MODALS
+// ════════════════════════════════
+function openModal(id)  { document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+document.addEventListener('click', e => {
+  if(e.target.classList.contains('modal-overlay')) document.querySelectorAll('.modal-overlay').forEach(m=>m.classList.add('hidden'));
+});
+function toggleUserMenu() { document.getElementById('userMenu').classList.toggle('hidden'); }
+
+// ════════════════════════════════
+//  SIGN OUT
+// ════════════════════════════════
+function signOut() {
+  if(!confirm('Are you sure you want to sign out?')) return;
+  if(typeof google!=='undefined'&&google.accounts) {
+    const u=getData('lula_user',{}); if(u.email) google.accounts.id.revoke(u.email,()=>{});
+    google.accounts.id.disableAutoSelect();
+  }
+  localStorage.removeItem('lula_user');
+  localStorage.removeItem('lula_setup_done');
+  localStorage.removeItem('lula_role');
+  sessionStorage.setItem('signed_out','1');
+  window.location.href='index.html';
+}
+
+// ════════════════════════════════
+//  TOAST
+// ════════════════════════════════
+function showToast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.style.transform='translateX(-50%) translateY(0)';
+  setTimeout(()=>{ t.style.transform='translateX(-50%) translateY(100px)'; },3500);
+}
+</script>
+</body>
+</html>
